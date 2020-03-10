@@ -7,6 +7,10 @@ public class Rocket : MonoBehaviour
     Rigidbody rigidBody;
     AudioSource audioSource;
 
+    // need to make this available so we can tweak it in the editor
+    [SerializeField] float rcsThrust = 200f;
+    [SerializeField] float mainThrust = 200f;
+
     void Start() {
         rigidBody = GetComponent<Rigidbody>();
         audioSource = GetComponent<AudioSource>();
@@ -17,14 +21,30 @@ public class Rocket : MonoBehaviour
         HandleRotation();
     }
 
+    void OnCollisionEnter(Collision collision) {
+        switch (collision.gameObject.tag) {
+            case "Friendly":
+                // do nothing
+                print("Friendly");
+                break;
+            case "Fuel":
+                print("Fuel");
+                break; 
+            default:
+                print("Dead!");
+                break;
+        }
+    }
+
     private void HandleRotation() {
-        rigidBody.freezeRotation = true; // take manual control of rotation (spin caused by collisions)
+        rigidBody.freezeRotation = true; // take manual control of rotation
+
+        float rotationThisFrame = rcsThrust * Time.deltaTime;
+
         if (Input.GetKey(KeyCode.LeftArrow)) {
-            print("left key pressed");
-            transform.Rotate(Vector3.forward);
+            transform.Rotate(Vector3.forward * rotationThisFrame);
         } else if (Input.GetKey(KeyCode.RightArrow)) {
-            print("right key pressed");
-            transform.Rotate(Vector3.back);
+            transform.Rotate(Vector3.back * rotationThisFrame);
         }
 
         rigidBody.freezeRotation = false; // give control back to game physics
@@ -32,8 +52,8 @@ public class Rocket : MonoBehaviour
 
     void HandleThrust() {
         if (Input.GetKey(KeyCode.Space)) {
-            print("spacebar pressed");
-            rigidBody.AddRelativeForce(Vector3.up);
+            float mainThrustThisFrame = mainThrust * Time.deltaTime;
+            rigidBody.AddRelativeForce(Vector3.up * mainThrustThisFrame);
             if (!audioSource.isPlaying) {
                 audioSource.Play();
             }
