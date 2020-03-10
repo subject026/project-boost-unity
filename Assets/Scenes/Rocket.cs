@@ -13,10 +13,24 @@ public class Rocket : MonoBehaviour
     }
 
     void Update() {
-        ProcessInput();
+        HandleThrust();
+        HandleRotation();
     }
 
-    private void ProcessInput() {
+    private void HandleRotation() {
+        rigidBody.freezeRotation = true; // take manual control of rotation (spin caused by collisions)
+        if (Input.GetKey(KeyCode.LeftArrow)) {
+            print("left key pressed");
+            transform.Rotate(Vector3.forward);
+        } else if (Input.GetKey(KeyCode.RightArrow)) {
+            print("right key pressed");
+            transform.Rotate(Vector3.back);
+        }
+
+        rigidBody.freezeRotation = false; // give control back to game physics
+    }
+
+    void HandleThrust() {
         if (Input.GetKey(KeyCode.Space)) {
             print("spacebar pressed");
             rigidBody.AddRelativeForce(Vector3.up);
@@ -27,13 +41,6 @@ public class Rocket : MonoBehaviour
             if (audioSource.isPlaying) {
                 audioSource.Stop();
             }
-        }
-        if (Input.GetKey(KeyCode.LeftArrow)) {
-            print("left key pressed");
-            transform.Rotate(Vector3.forward);
-        } else if (Input.GetKey(KeyCode.RightArrow)) {
-            print("right key pressed");
-            transform.Rotate(Vector3.back);
         }
     }
 }
